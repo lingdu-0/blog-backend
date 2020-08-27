@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wb.mapper.ArticleMapper">
+    <!-- type：指定Cache接口的实现类 -->
+    <resultMap id="BaseResultMap" type="article">
+        <id column="article_id" property="articleId" jdbcType="INTEGER"/>
+        <result column="article_title" property="articleTitle" jdbcType="VARCHAR"/>
+        <result column="article_date" property="articleDate" jdbcType="DATE"/>
+        <result column="article_detail" property="articleDetail" jdbcType="LONGVARCHAR"/>
+        <result column="article_describe" property="articleDescribe" jdbcType="LONGVARCHAR"/>
+        <result column="article_access" property="articleAccess" jdbcType="INTEGER"/>
+        <result column="article_number" property="articleNumber" jdbcType="INTEGER"/>
+        <result column="article_praise" property="articlePraise" jdbcType="INTEGER"/>
+        <result column="article_img" property="articleImg" jdbcType="VARCHAR"/>
+        <result column="article_type_id" property="articleTypeId" jdbcType="INTEGER"/>
+        <result column="article_state" property="articleState" jdbcType="INTEGER"/>
+        <association property="articleType" javaType="articleType">
+            <id column="article_type_id" property="articleTypeId"/>
+            <result column="article_type_name" property="articleTypeName"/>
+        </association>
+    </resultMap>
+    <resultMap id="ResultMapWithBLOBs" type="article" extends="BaseResultMap">
+        <result column="article_detail" property="articleDetail" jdbcType="LONGVARCHAR"/>
+    </resultMap>
+
+    <sql id="selectResult">
+        a.article_id,
+        a.article_title,
+        a.article_date,
+        a.article_describe,
+        a.article_detail,
+        a.article_access,
+        (select count(*) from t_comment c where c.compose_id = a.article_id and c.comment_type=1) as article_number,
+        (select count(*) from t_zan z where z.zan_state=1 and z
+        .compose_id = a.article_id and z.zan_type=1) as article_praise,
+        a.article_img,
+        type.article_type_id,
+        type.article_type_name,
+        a.article_state
+    </sql>
+    <select id="selectAll" resultMap="BaseResultMap">
+        select
+        <include refid="selectResult"/>
+        from
+        t_article a,
+        t_article_type type
+        where
+        a.article_type_id = type.article_type_id
+    </select>
+
+    <select id="selectByTypeId" resultMap="BaseResultMap">
+        select
+        <include refid="selectResult"/>
+        from
+        t_article a,
+        t_article_type type
+        where
+        a.article_type_id = type.article_type_id
+        and
+        type.article_type_id=#{articleTypeId}
+    </select>
+
+    <select id="findById" resultMap="BaseResultMap">
+        select
+        <include refid="selectResult"/>
+        from
+        t_article a,
+        t_article_type type
+        where
+        a.article_type_id = type.article_type_id
+        and
+        a.article_id=#{articleId}
+    </select>
+
+    <select id="fuzzyQuery" resultMap="BaseResultMap">
+        select
+        <include refid="selectResult"/>
+        from
+        t_article a,
+        t_article_type type
+        where
+        a.article_type_id = type.article_type_id
+        and
+        a.article_title like '%${data}%'
+    </select>
+
+    <delete id="deleteById">
+        delete from t_article where article_id = #{id}
+    </delete>
+
+    <delete id="deleteByIds">
+        delete from t_article where article_id in
+        <foreach item="item" index="index" collection="ids"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+
+    <insert id="insert" parameterType="article">
+        INSERT INTO `myblog`.`t_article` (
+        `article_type_id`,
+        `article_title`,
+        `article_date`,
+        `article_describe`,
+        `article_detail`,
+        `article_img`,
+        `article_state`
+        )
+        VALUES
+        (
+        #{articleTypeId},
+        #{articleTitle},
+        now(),
+        #{articleDescribe},
+        #{articleDetail},
+        #{articleImg},
+        #{articleState}
+        );
+    </insert>
+    <update id="update" parameterType="article">
+        UPDATE `myblog`.`t_article`
+        <set>
+            `article_type_id` = #{articleTypeId},
+            <if test="articleTitle!=null">
+                `article_title` =#{articleTitle},
+            </if>
+            `article_date` = now(),
+            <if test="articleDescribe!=null">
+                `article_describe` =#{articleDescribe},
+            </if>
+            <if test="articleDetail!=null">
+                `article_detail`=#{articleDetail},
+            </if>
+            <if test="articleImg!=null">
+                `article_img`=#{articleImg}
+            </if>
+            <if test="articleState!=null">
+                `article_state`=#{articleState}
+            </if>
+        </set>
+        WHERE
+        `article_id` = #{articleId}
+    </update>
+
+</mapper>

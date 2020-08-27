@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wb.mapper.LeaveWordMapper">
+    <!-- type：指定Cache接口的实现类 -->
+    <resultMap id="BaseResultMap" type="leaveWord">
+        <id column="leave_word_id" property="leaveWordId" jdbcType="INTEGER"/>
+        <result column="leave_word_date" property="leaveWordDate" jdbcType="DATE"/>
+        <result column="leave_word_detail" property="leaveWordDetail" jdbcType="LONGVARCHAR"/>
+        <association property="user" javaType="user">
+            <id column="user_id" property="userId"/>
+            <result column="username" property="userName" jdbcType="LONGVARCHAR"/>
+            <result column="user_email" property="userEmail" jdbcType="LONGVARCHAR"/>
+        </association>
+    </resultMap>
+
+    <resultMap id="ResultMapWithBLOBs" type="leaveWord" extends="BaseResultMap">
+        <result column="leave_word_detail" property="leaveWordDetail" jdbcType="LONGVARCHAR"/>
+    </resultMap>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        select
+            lw.*,
+            u.username,
+            u.user_email
+        from
+            t_user u,
+            t_leave_word lw
+        where
+            u.user_id = lw.user_id
+        group by
+            lw.leave_word_id desc
+    </select>
+
+    <select id="findById" resultMap="BaseResultMap">
+        select
+             lw.*,
+            u.username,
+            u.user_email
+        from
+            t_user u,
+            t_leave_word lw
+        where
+            u.user_id = lw.user_id
+        and
+            lw.leave_word_id=#{id}
+    </select>
+
+    <select id="fuzzyQuery" resultMap="BaseResultMap">
+        select
+             lw.*,
+            u.username,
+            u.user_email
+        from
+            t_user u,
+            t_leave_word lw
+        where
+            lw.leave_word_detail like '%${data}%'
+        and
+            u.user_id = lw.user_id
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="leaveWordId" parameterType="leaveWord">
+        INSERT INTO `myblog`.`t_leave_word` (
+        `leave_word_name`,
+        `leave_word_detail`,
+        `leave_word_date`
+        )
+        VALUES
+        (
+        <choose>
+            <when test="leaveWordName != null">#{leaveWordName}</when>
+            <otherwise>'隐士高人'</otherwise>
+        </choose>
+        ,
+        #{leaveWordDetail},
+        now()
+        )
+    </insert>
+
+    <delete id="deleteById">
+        delete from t_leave_word where leave_word_id=#{id}
+    </delete>
+
+    <delete id="deleteByIds">
+        delete from t_leave_word where leave_word_id in
+        <foreach item="item" index="index" collection="ids"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <update id="update">
+        UPDATE `myblog`.`t_leave_word`
+        <set>
+            <if test="leaveWordDetail != null and leaveWordDetail != ''">
+                `leave_word_detail` = #{leaveWordDetail},
+            </if>
+            `leave_word_date` = now()
+        </set>
+        WHERE
+        `leave_word_id` = #{leaveWordId}
+    </update>
+</mapper>

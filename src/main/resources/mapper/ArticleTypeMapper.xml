@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wb.mapper.ArticleTypeMapper">
+    <!-- type：指定Cache接口的实现类 -->
+    <resultMap id="BaseResultMap" type="com.wb.entity.ArticleType">
+        <id column="article_type_id" property="articleTypeId" jdbcType="INTEGER"/>
+        <result column="article_type_name" property="articleTypeName" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        select
+        article_type_id,
+        article_type_name
+        from
+        t_article_type
+    </select>
+    <select id="findById" resultMap="BaseResultMap">
+        select
+            article_type_id,
+            article_type_name
+        from
+            t_article_type
+        where
+            article_type_id=#{id}
+    </select>
+
+    <select id="fuzzyQuery" resultMap="BaseResultMap">
+        select
+            article_type_id,
+            article_type_name
+        from
+            t_article_type
+        where
+            article_type_name like '%${data}%'
+    </select>
+
+    <insert id="insert">
+        INSERT INTO `t_article_type`
+         (article_type_name)
+        VALUES
+            (#{articleTypeName})
+    </insert>
+
+    <delete id="deleteById">
+        delete from t_article_type where article_type_id=#{id}
+    </delete>
+
+    <delete id="deleteByIds">
+        delete from t_article_type where article_type_id in
+        <foreach item="item" index="index" collection="ids"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <update id="update">
+        UPDATE
+        `myblog`.`t_article_type`
+        SET
+        <if test="articleTypeName != null and articleTypeName != ''">
+            `article_type_name` = #{articleTypeName}
+        </if>
+        WHERE
+        `article_type_id` = #{articleTypeId}
+    </update>
+</mapper>

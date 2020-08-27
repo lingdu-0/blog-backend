@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wb.mapper.LogMapper">
+    <!-- type：指定Cache接口的实现类 -->
+    <resultMap id="BaseResultMap" type="com.wb.entity.Log">
+        <id property="logId" column="log_id" jdbcType="INTEGER"/>
+        <result property="date" column="log_date" jdbcType="DATE"/>
+        <result property="logIp" column="log_ip" jdbcType="VARCHAR"/>
+        <result property="operation" column="log_operation" jdbcType="VARCHAR"/>
+        <association property="user" column="user" javaType="com.wb.entity.User">
+            <id property="userId" column="user_id" jdbcType="INTEGER"/>
+            <result property="userName" column="username" jdbcType="VARCHAR"/>
+        </association>
+    </resultMap>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        select
+            l.log_id,
+            l.log_operation,
+            l.log_date,
+            l.log_ip,
+            u.user_id,
+            u.username
+        from
+            t_log l,t_user u
+        where
+            l.user_id=u.user_id
+        group by l.log_id desc
+    </select>
+
+    <select id="fuzzyQuery" resultMap="BaseResultMap">
+       select
+            l.log_id,
+            l.log_operation,
+            l.log_date,
+            l.log_ip,
+            u.user_id,
+            u.username
+        from
+            t_log l,t_user u
+        where
+         l.log_operation like '%${data}%'
+    </select>
+
+    <insert id="insert">
+        INSERT INTO `myblog`.`t_log` (
+            `user_id`,
+            `log_operation`,
+            `log_date`,
+            `log_ip`
+            )
+        VALUES
+	        (#{user.userId},#{operation}, now(), #{logIp})
+    </insert>
+
+    <delete id="deleteById">
+        delete from t_log where log_id = #{id}
+    </delete>
+
+    <delete id="delete">
+        delete from t_log;
+    </delete>
+
+    <delete id="deleteByIds">
+        delete from t_log where log_id in
+        <foreach item="item" index="index" collection="ids"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+</mapper>

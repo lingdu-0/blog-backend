@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wb.mapper.AlbumMapper">
+    <!-- type：指定Cache接口的实现类 -->
+    <resultMap id="BaseResultMap" type="com.wb.entity.Album">
+        <id column="album_id" property="albumId" jdbcType="INTEGER"/>
+        <result column="album_title" property="albumTitle" jdbcType="VARCHAR"/>
+        <result column="album_date" property="albumDate" jdbcType="DATE"/>
+        <result column="album_address" property="albumAddress" jdbcType="VARCHAR"/>
+        <result column="album_img" property="albumImg" jdbcType="VARCHAR"/>
+        <result column="album_praise" property="albumPraise" jdbcType="INTEGER"/>
+    </resultMap>
+    <select id="selectAll" resultMap="BaseResultMap">
+        select
+            album_id,
+            album_title,
+            album_date,
+            album_address,
+            album_img
+        from
+            t_album
+    </select>
+    <select id="selectLast" resultMap="BaseResultMap">
+       select
+            album_id,
+            album_title,
+            album_date,
+            album_address,
+            album_img
+        from
+            t_album
+		GROUP BY album_id DESC
+        limit 0,1;
+    </select>
+    <select id="findById" resultMap="BaseResultMap">
+         select
+            album_id,
+            album_title,
+            album_date,
+            album_address,
+            album_img
+        from
+            t_album
+        where
+            album_id = #{id}
+    </select>
+
+    <select id="fuzzyQuery" resultMap="BaseResultMap">
+        select
+            album_id,
+            album_title,
+            album_date,
+            album_address,
+            album_img
+        from
+            t_album
+        where
+            album_title like '%${data}%'
+    </select>
+    <insert id="insert">
+        INSERT INTO `myblog`.`t_album`
+            (
+            `album_title`,
+            `album_date`,
+            `album_address`,
+            `album_img`
+            )
+        VALUES
+            (
+                #{albumTitle},
+                now(),
+                #{albumAddress},
+                #{albumImg}
+            )
+</insert>
+    <update id="update">
+        UPDATE
+        `myblog`.`t_album`
+        <set>
+            <if test="albumTitle !=null and albumTitle != '' ">
+                `album_title` = #{albumTitle},
+            </if>
+            `album_date` = now(),
+            <if test="albumAddress != null and albumAddress != ''">
+                `album_address` = #{albumAddress},
+            </if>
+            <if test="albumImg != null and albumImg!=''">
+                `album_img` = #{albumImg}
+            </if>
+        </set>
+        WHERE
+        (`album_id` = #{albumId});
+    </update>
+
+    <delete id="deleteById">
+        delete from t_album where album_id =#{id}
+    </delete>
+
+    <delete id="deleteByIds">
+        delete from t_album where album_id in
+        <foreach item="item" index="index" collection="ids"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+</mapper>

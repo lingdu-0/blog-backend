@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wb.mapper.EssayMapper">
+    <!-- type：指定Cache接口的实现类 -->
+    <resultMap id="BaseResultMap" type="essay">
+        <id column="essay_id" property="essayId" jdbcType="INTEGER"/>
+        <result column="essay_title" property="essayTitle" jdbcType="VARCHAR"/>
+        <result column="essay_date" property="essayDate" jdbcType="TIMESTAMP"/>
+        <result column="essay_praise" property="essayPraise" jdbcType="INTEGER"/>
+        <result column="essay_number" property="essayNumber" jdbcType="INTEGER"/>
+        <result column="zan_state" property="zanState" jdbcType="INTEGER"/>
+        <result column="essay_state" property="essayState" jdbcType="INTEGER"/>
+        <result column="comment_state" property="commentState" jdbcType="INTEGER"/>
+        <result column="essay_img" property="essayImg" jdbcType="VARCHAR"/>
+        <result column="essay_detail" property="essayDetail" jdbcType="LONGVARCHAR"/>
+    </resultMap>
+    <resultMap id="ResultMapWithBLOBs" type="essay" extends="BaseResultMap">
+        <result column="essay_detail" property="essayDetail" jdbcType="LONGVARCHAR"/>
+    </resultMap>
+    <sql id="selectResultList1">
+            e.essay_id,
+            e.essay_title,
+            e.essay_date,
+            e.essay_detail,
+            e.essay_state,
+            (select count(*) from t_comment c where c.compose_id =e.essay_id and c.comment_type=2) as essay_number,
+            (select count(*) from t_zan z where z.zan_state=1 and z.compose_id = e.essay_id and z.zan_type=2) as essay_praise,
+            e.essay_img
+    </sql>
+    <sql id="selectResultList2">
+            e.essay_id,
+            e.essay_title,
+            e.essay_date,
+            e.essay_detail,
+            e.essay_state,
+            (select count(*) from t_comment c where c.compose_id =e.essay_id and c.comment_type=2) as essay_number,
+            (select count(*) from t_zan z where z.zan_state=1 and z.compose_id = e.essay_id and z.zan_type=2) as essay_praise,
+            e.essay_img,
+            IF((SELECT count(*) FROM t_zan z WHERE z.user_id = #{userId} AND z.compose_id = e.essay_id AND z.zan_type = 2 )!= 0,
+            (SELECT z.zan_state FROM t_zan z WHERE z.user_id = #{userId} AND z.compose_id = e.essay_id AND z.zan_type = 2 ),
+            0) zan_state,
+             IF((SELECT count(*) FROM t_comment c WHERE c.user_id = #{userId} AND c.compose_id = e.essay_id AND c.comment_type = 2 )!= 0,
+            1,0) comment_state
+    </sql>
+    <select id="selectAll" resultMap="BaseResultMap">
+        select
+        <include refid="selectResultList1"/>
+        from
+        t_essay e
+    </select>
+
+    <select id="selectAll2" resultMap="BaseResultMap">
+        select
+        <include refid="selectResultList2"/>
+        from
+        t_essay e
+    </select>
+
+
+    <select id="findById" resultMap="BaseResultMap">
+        select
+        <include refid="selectResultList1"/>
+        from
+        t_essay e
+        where e.essay_id=#{essayId}
+    </select>
+
+    <select id="findById2" resultMap="BaseResultMap">
+        select
+        <include refid="selectResultList2"/>
+        from
+        t_essay e
+        where e.essay_id=#{essayId}
+    </select>
+
+    <select id="fuzzyQuery" resultMap="BaseResultMap">
+        select
+        <include refid="selectResultList2"/>
+        from
+        t_essay e
+        where
+        e.essay_title like '%${data}%'
+    </select>
+
+    <insert id="insert">
+        INSERT INTO `myblog`.`t_essay`
+        (
+            `essay_title`,
+            `essay_date`,
+            `essay_detail`,
+            `essay_state`,
+            `essay_img`
+        )
+        VALUES
+        (
+            #{essayTitle},
+            now(),
+            #{essayDetail},
+            #{essayState},
+            NULL
+        )
+    </insert>
+
+    <update id="update">
+        UPDATE
+        `myblog`.`t_essay`
+        <set>
+            <if test="essayTitle!=null">
+                `essay_title` = #{essayTitle},
+            </if>
+            `essay_date` = now(),
+            <if test="essayDetail!=null">
+                `essay_detail` = #{essayDetail},
+            </if>
+            <if test="essayImg!=null">
+                `essay_img` = #{essayImg}
+            </if>
+            <if test="essayState!=null">
+                `essay_state` = #{essayState}
+            </if>
+        </set>
+        WHERE
+        (`essay_id` = #{essayId});
+    </update>
+
+    <delete id="deleteById">
+        delete from t_essay where essay_id=#{id}
+    </delete>
+
+    <delete id="deleteByIds">
+        delete from t_essay where essay_id in
+        <foreach item="item" index="index" collection="ids"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+</mapper>

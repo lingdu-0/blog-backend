@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wb.mapper.CommentMapper">
+    <!-- type：指定Cache接口的实现类 -->
+    <resultMap id="BaseResultMap" type="comment">
+        <id column="comment_id" property="commentId" jdbcType="INTEGER"/>
+        <result column="comment_type" property="commentType" jdbcType="INTEGER"/>
+        <result column="comment_date" property="commentDate" jdbcType="TIMESTAMP"/>
+        <result column="comment_detail" property="commentDetail" jdbcType="LONGVARCHAR"/>
+        <association property="article" javaType="article">
+            <id column="article_id" property="articleId"/>
+        </association>
+        <association property="user" javaType="user">
+            <id column="user_id" property="userId"/>
+            <result column="username" property="userName"/>
+            <result column="user_email" property="userEmail"/>
+        </association>
+        <association property="essay" javaType="essay">
+            <id column="essay_id" property="essayId"/>
+        </association>
+    </resultMap>
+    <resultMap id="ResultMapWithBLOBs" type="comment" extends="BaseResultMap">
+        <result column="comment_detail" property="commentDetail" jdbcType="LONGVARCHAR"/>
+    </resultMap>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        select
+            c.comment_id,
+            c.comment_type,
+            c.comment_detail,
+            c.comment_date,
+            c.compose_id as article_id,
+            c.compose_id as essay_id,
+            u.user_id,
+            u.username,
+            u.user_email
+        from
+            t_comment c,t_user u
+        where
+            u.user_id = c.user_id
+    </select>
+
+    <select id="findByIds" resultMap="BaseResultMap">
+        select
+        c.comment_id,
+        c.comment_type,
+        c.comment_detail,
+        c.comment_date,
+        c.compose_id as article_id,
+        c.compose_id as essay_id,
+        u.user_id,
+        u.username,
+        u.user_email
+        from
+        t_comment c,t_user u
+        <where>
+            u.user_id = c.user_id
+            <if test="typeId != null">
+                and c.comment_type=#{typeId}
+                AND c.compose_id=#{composeId}
+            </if>
+        </where>
+    </select>
+
+    <select id="findById" resultMap="BaseResultMap">
+        select
+            c.comment_id,
+            c.comment_type,
+            c.comment_detail,
+            c.comment_date,
+            c.compose_id as article_id,
+            c.compose_id as essay_id,
+            u.user_id,
+            u.username,
+            u.user_email
+        from
+            t_comment c,t_user u
+        where
+            u.user_id = c.user_id
+        and
+            c.comment_id=#{id}
+    </select>
+
+    <select id="selectNum" resultType="int">
+        select
+            count(*)
+        from
+            t_comment c
+        where
+            c.compose_id =#{composeId}
+    </select>
+
+    <select id="fuzzyQuery" resultMap="BaseResultMap">
+       select
+            c.comment_id,
+            c.comment_type,
+            c.comment_detail,
+            c.comment_date,
+            c.compose_id as article_id,
+            c.compose_id as essay_id,
+            u.user_id,
+            u.username,
+            u.user_email
+        from
+            t_comment c,t_user u
+        where
+            u.user_id = c.user_id
+        and
+            c.comment_detail like '%${data}%'
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="commentId">
+        INSERT INTO `myblog`.`t_comment` (
+        `comment_type`,
+        `comment_name`,
+        `comment_detail`,
+        `comment_date`,
+        `article_id`,
+        `essay_id`
+        )
+        VALUES
+        (
+        #{commentType},
+        <choose>
+            <when test="commentName != null">#{commentName}</when>
+            <otherwise>'隐士高人'</otherwise>
+        </choose>
+        ,
+        #{commentDetail},
+        now(),
+        #{articleId},
+        #{essayId}
+        )
+    </insert>
+
+    <delete id="deleteById">
+        delete from t_comment where comment_id=#{id}
+    </delete>
+
+    <delete id="deleteByIds">
+        delete from t_comment where comment_id in
+        <foreach item="item" index="index" collection="ids"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <update id="update">
+        UPDATE
+        `myblog`.`t_comment`
+        <set>
+            <if test="commentDetail != null and commentDetail != ''">
+                `comment_detail` = #{commentDetail},
+            </if>
+            `comment_date` = now()
+        </set>
+        WHERE
+        `comment_id` = #{commentId}
+    </update>
+</mapper>

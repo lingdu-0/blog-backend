@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wb.mapper.UserMapper">
+    <resultMap id="BaseResultMap" type="user">
+        <id column="user_id" property="userId" jdbcType="INTEGER"/>
+        <result column="username" property="userName" jdbcType="VARCHAR"/>
+        <result column="password" property="password" jdbcType="VARCHAR"/>
+        <result column="user_email" property="userEmail" jdbcType="VARCHAR"/>
+        <result column="user_level" property="userLevel" jdbcType="INTEGER"/>
+        <result column="user_state" property="userState" jdbcType="INTEGER"/>
+    </resultMap>
+    <sql id="selectResultList">
+        user_id,username,password,user_email,user_level,user_state
+    </sql>
+    <select id="login" resultMap="BaseResultMap">
+        select * from t_user where  username = #{userName} and password = #{password}
+    </select>
+    <select id="selectAll" resultMap="BaseResultMap">
+        select * from t_user
+
+    </select>
+   <!--  where username !='admin'-->
+    <select id="findById" resultMap="BaseResultMap">
+        select
+        <include refid="selectResultList"/>
+        from t_user
+        where user_id=#{id}
+    </select>
+
+    <select id="fuzzyQuery" resultMap="BaseResultMap">
+        select
+        <include refid="selectResultList"/>
+        from t_user
+        where username like '%${data}%'
+    </select>
+
+    <delete id="deleteByIds">
+        delete from t_user where user_id in
+        <foreach item="item" index="index" collection="ids"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <delete id="deleteById">
+        delete from t_user where user_id = #{id}
+    </delete>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="userId" parameterType="user">
+       INSERT INTO `t_user`
+       (`username`, `password`, `user_email`, `user_level`, `user_state`)
+       VALUES
+       (
+        #{userName},
+        #{password},
+        #{userEmail},
+        #{userLevel},
+        #{userState}
+        );
+    </insert>
+
+    <select id="findByUserEmail" resultType="int">
+        select count(*) from t_user where  user_email =#{userEmail};
+    </select>
+    <select id="findByUserName" resultType="int">
+        select count(*) from t_user where  username =#{userName};
+    </select>
+
+    <update id="update">
+        update t_user set
+            username = #{userName},
+            password = #{password},
+            user_email =  #{userEmail},
+            user_level =  #{userLevel},
+            user_state =  #{userState}
+       where
+            user_id = #{userId}
+    </update>
+</mapper>
