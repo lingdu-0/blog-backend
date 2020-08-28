@@ -49,8 +49,9 @@ public class EssayServiceImpl extends BaseServiceImpl<Essay> implements EssaySer
 
     @Override
     public List<Essay> findAll(Integer pageNum, Integer pageSize) {
-        if (pageNum == null)
+        if (pageNum == null) {
             pageNum = 1;
+        }
         PageHelper.startPage(pageNum, pageSize);
         return essayMapper.selectAll();
     }

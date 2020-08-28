@@ -78,8 +78,9 @@ public class UserController {
 
     @RequestMapping("index/{pageNum}")
     public String index(@PathVariable Integer pageNum, Model model) {
-        if (pageNum == null)
+        if (pageNum == null) {
             pageNum = 1;
+        }
         PageInfo pageInfo = new PageInfo(userService.findAll(pageNum, 10));
         model.addAttribute("userPageInfo", pageInfo);
         return "user";

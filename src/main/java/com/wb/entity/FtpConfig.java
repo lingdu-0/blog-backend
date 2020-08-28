@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class FTPConfig {
+public class FtpConfig {
     // FTP服务器hostname
     private String host;
     //FTP端口号

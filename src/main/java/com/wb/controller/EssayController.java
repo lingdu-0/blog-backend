@@ -36,8 +36,9 @@ public class EssayController {
      */
     @RequestMapping("essays/{pageNum}")
     public String index(@PathVariable Integer pageNum, Model model) {
-        if (pageNum == null)
+        if (pageNum == null) {
             pageNum = 1;
+        }
         PageInfo pageInfo = new PageInfo(essayService.findAll(pageNum, Constant.ESSAY_PAGE_SIZE));
         model.addAttribute("essayPageInfo", pageInfo);
         return "essay";

@@ -52,8 +52,9 @@ public class ArticleServiceImpl extends BaseServiceImpl<Article> implements Arti
 
     @Override
     public List<Article> findAll(Integer pageNum, Integer pageSize) {
-        if (pageNum == null)
+        if (pageNum == null){
             pageNum = 1;
+        }
         PageHelper.startPage(pageNum, pageSize);
         List<Article> list = articleMapper.selectAll();
         return list;
@@ -67,8 +68,9 @@ public class ArticleServiceImpl extends BaseServiceImpl<Article> implements Arti
 
     @Override
     public List<Article> findByTypeId(Integer pageNum, Integer articleTypeId) {
-        if (pageNum == null)
+        if (pageNum == null){
             pageNum = 1;
+        }
         if (articleTypeId == 0) {
             PageHelper.startPage(pageNum, Constant.ARTICLE_PAGE_SIZE);
             return articleMapper.selectAll();

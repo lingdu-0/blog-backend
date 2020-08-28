@@ -50,8 +50,9 @@ public class AlbumServiceImpl extends BaseServiceImpl<Album> implements AlbumSer
 
     @Override
     public List<Album> findAll(Integer pageNum, Integer pageSize) {
-        if (pageNum == null)
+        if (pageNum == null) {
             pageNum = 1;
+        }
         PageHelper.startPage(pageNum, pageSize);
         return albumMapper.selectAll();
     }

@@ -49,8 +49,9 @@ public class LeaveWordServiceImpl extends BaseServiceImpl<LeaveWord> implements 
 
     @Override
     public List<LeaveWord> findAll(Integer pageNum, Integer pageSize) {
-        if (pageNum == null)
+        if (pageNum == null) {
             pageNum = 1;
+        }
         PageHelper.startPage(pageNum, pageSize);
         return leaveWordMapper.selectAll();
     }

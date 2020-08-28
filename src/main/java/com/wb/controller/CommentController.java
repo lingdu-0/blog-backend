@@ -26,8 +26,9 @@ public class CommentController {
 
     @RequestMapping("comments/{pageNum}")
     public String comments(@PathVariable Integer pageNum, Model model) {
-        if (pageNum == null)
+        if (pageNum == null) {
             pageNum = 1;
+        }
         PageInfo pageInfo = new PageInfo(commentService.findAll(pageNum, Constant.COMMENT_PAGE_SIZE));
         model.addAttribute("commentPageInfo", pageInfo);
         return "comment";
@@ -46,12 +47,15 @@ public class CommentController {
                 comment.setCommentType(2);
                 comment.setEssayId(id);
                 break;
+            default:
+                break;
         }
         comment.setCommentDetail(detail);
         if (commentService.insert(comment) != 0) {
             return commentService.findById(comment.getCommentId());
-        } else
+        } else {
             return null;
+        }
     }
 
 
@@ -74,12 +78,14 @@ public class CommentController {
         commentService.update(comment);
         return "redirect:/comment/comments/1";
     }
+
     @RequestMapping("search")
     public String search(String data, Model model) {
         PageInfo pageInfo = new PageInfo(commentService.fuzzyQuery(data));
         model.addAttribute("commentPageInfo", pageInfo);
         return "comment";
     }
+
     @RequestMapping("deleteIds")
     @ResponseBody
     public Result deleteIds(int[] ids) {

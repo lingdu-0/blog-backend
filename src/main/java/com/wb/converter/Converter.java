@@ -53,8 +53,9 @@ public class Converter {
 
     public static Album getAlbum(ReqVo reqVo) {
         Album album = new Album();
-        if (reqVo.getId() != null)
+        if (reqVo.getId() != null) {
             album.setAlbumId(reqVo.getId());
+        }
         album.setAlbumTitle(reqVo.getTitle());
         album.setAlbumAddress(reqVo.getAddress());
         return album;

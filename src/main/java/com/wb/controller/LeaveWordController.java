@@ -32,8 +32,9 @@ public class LeaveWordController {
      */
     @RequestMapping("index/{pageNum}")
     public String index(@PathVariable("pageNum") Integer pageNum, Model model) {
-        if (pageNum == null)
+        if (pageNum == null) {
             pageNum = 1;
+        }
         PageInfo pageInfo = new PageInfo(leaveWordService.findAll(pageNum, Constant.LEAVE_WORD_INDEX_PAGE_SIZE));
         model.addAttribute("leaveWordPageInfo", pageInfo);
         return "notice";

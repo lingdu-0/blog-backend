@@ -4,7 +4,7 @@ import com.github.pagehelper.PageInfo;
 import com.wb.common.Constant;
 import com.wb.converter.Converter;
 import com.wb.entity.Album;
-import com.wb.entity.FTPConfig;
+import com.wb.entity.FtpConfig;
 import com.wb.entity.Result;
 import com.wb.service.AlbumService;
 import com.wb.util.FileUpload;
@@ -29,7 +29,7 @@ public class AlbumController {
     @Autowired
     private AlbumService albumService;
     @Autowired
-    private FTPConfig ftpConfig;
+    private FtpConfig ftpConfig;
 
     /**
      * 获取数据并跳转相册首页
@@ -40,8 +40,9 @@ public class AlbumController {
      */
     @RequestMapping("index/{pageNum}")
     public String index(@PathVariable Integer pageNum, Model model) {
-        if (pageNum == null)
+        if (pageNum == null) {
             pageNum = 1;
+        }
         PageInfo pageInfo = new PageInfo(albumService.findAll(pageNum, Constant.ALBUM_PAGE_SIZE));
         model.addAttribute("albumPageInfo", pageInfo);
         return "album";
@@ -62,8 +63,9 @@ public class AlbumController {
     @RequestMapping("del/{albumId}")
     public String del(@PathVariable Integer albumId) {
         Album album = albumService.findById(albumId);
-        if (deleteImg(album.getAlbumImg()))
+        if (deleteImg(album.getAlbumImg())) {
             albumService.deleteById(albumId);
+        }
         return "redirect:/album/index/1";
     }
 
@@ -76,11 +78,12 @@ public class AlbumController {
         if (!reqVo.getFile().isEmpty()) {
             //判断上传图片是否成功!
             String fileName = FileUpload.upload(ftpConfig, reqVo);
-            if (!fileName.equals("")) {
+            if (!"".equals(fileName)) {
                 album.setAlbumImg(fileName);
                 //删除原图片
-                if (!deleteImg(lastAlbum.getAlbumImg()))//删除失败返回
+                if (!deleteImg(lastAlbum.getAlbumImg())) {//删除失败返回
                     return "redirect:/album/index/1";
+                }
             }
         }
         //更新数据库
@@ -97,7 +100,7 @@ public class AlbumController {
             if (!reqVo.getFile().isEmpty()) {
                 fileName = FileUpload.upload(ftpConfig, reqVo);
             }
-            if (!fileName.equals("")) {
+            if (!"".equals(fileName)) {
                 album.setAlbumImg(fileName);
                 albumService.insert(album);
             }

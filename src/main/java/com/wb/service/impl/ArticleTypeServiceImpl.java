@@ -60,6 +60,7 @@ public class ArticleTypeServiceImpl extends BaseServiceImpl<ArticleType> impleme
         return articleTypeMapper.fuzzyQuery(data);
     }
 
+    @Override
     public List<ArticleType> findAll() {
         return articleTypeMapper.selectAll();
     }

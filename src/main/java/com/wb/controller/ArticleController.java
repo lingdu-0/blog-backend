@@ -4,7 +4,7 @@ import com.github.pagehelper.PageInfo;
 import com.wb.common.Constant;
 import com.wb.converter.Converter;
 import com.wb.entity.Article;
-import com.wb.entity.FTPConfig;
+import com.wb.entity.FtpConfig;
 import com.wb.entity.Result;
 import com.wb.service.ArticleService;
 import com.wb.service.ArticleTypeService;
@@ -31,12 +31,13 @@ public class ArticleController {
     @Autowired
     private ArticleTypeService articleTypeService;
     @Autowired
-    private FTPConfig ftpConfig;
+    private FtpConfig ftpConfig;
 
     @RequestMapping("articles/{pageNum}")
     public String articles(@PathVariable Integer pageNum, Model model) {
-        if (pageNum == null)
+        if (pageNum == null) {
             pageNum = 1;
+        }
         PageInfo pageInfo = new PageInfo(articleService.findAll(pageNum, Constant.ARTICLE_PAGE_SIZE));
         pageInfo.getNavigateLastPage();
         model.addAttribute("articlePageInfo", pageInfo);
@@ -69,7 +70,7 @@ public class ArticleController {
         if (!reqVo.getFile().isEmpty()) {
             String fileName = FileUpload.upload(ftpConfig, reqVo);
             System.out.println(fileName);
-            if (!fileName.equals("")) {
+            if (!"".equals(fileName)) {
                 article.setArticleImg(fileName);
             }
         }

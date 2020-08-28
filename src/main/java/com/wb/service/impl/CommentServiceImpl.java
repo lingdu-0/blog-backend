@@ -56,6 +56,8 @@ public class CommentServiceImpl extends BaseServiceImpl<Comment> implements Comm
                 essay.setEssayNumber(1);
                 essayMapper.update(essay);
                 break;
+            default:
+                break;
         }
         return commentMapper.insert(comment);
     }
@@ -70,8 +72,9 @@ public class CommentServiceImpl extends BaseServiceImpl<Comment> implements Comm
 
     @Override
     public List<Comment> findAll(Integer pageNum, Integer pageSize) {
-        if (pageNum == null)
+        if (pageNum == null) {
             pageNum = 1;
+        }
         PageHelper.startPage(pageNum, pageSize);
         return commentMapper.selectAll();
     }

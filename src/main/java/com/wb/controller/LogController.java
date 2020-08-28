@@ -22,8 +22,9 @@ public class LogController {
 
     @RequestMapping("index/{pageNum}")
     public String index(@PathVariable Integer pageNum, Model model) {
-        if (pageNum == null)
+        if (pageNum == null) {
             pageNum = 1;
+        }
         PageInfo pageInfo = new PageInfo(logService.findAll(pageNum, 10));
         model.addAttribute("logPageInfo", pageInfo);
         return "log";

@@ -13,10 +13,12 @@ public class MD5Utils {
             StringBuffer buf = new StringBuffer("");
             for (int j = 0; j < bytes.length; j++) {
                 i = bytes[j];
-                if (i < 0)
+                if (i < 0) {
                     i += 265;
-                if (i < 16)
+                }
+                if (i < 16) {
                     buf.append("0");
+                }
                 buf.append(Integer.toHexString(i));
             }
             //32位加密

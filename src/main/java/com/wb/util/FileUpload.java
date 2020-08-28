@@ -1,6 +1,6 @@
 package com.wb.util;
 
-import com.wb.entity.FTPConfig;
+import com.wb.entity.FtpConfig;
 import com.wb.vo.ReqVo;
 
 import java.io.IOException;
@@ -29,7 +29,7 @@ public class FileUpload {
      * @param reqVo
      * @return
      */
-    public static String upload(FTPConfig ftpConfig, ReqVo reqVo) {
+    public static String upload(FtpConfig ftpConfig, ReqVo reqVo) {
         String filename = reqVo.getFile().getOriginalFilename();
         String filename2 = getFileName(filename);
         InputStream inputStream = null;

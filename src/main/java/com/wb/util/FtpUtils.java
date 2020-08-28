@@ -1,6 +1,6 @@
 package com.wb.util;
 
-import com.wb.entity.FTPConfig;
+import com.wb.entity.FtpConfig;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.net.ftp.FTP;
@@ -24,10 +24,12 @@ public class FtpUtils {
      * @param input    输入流
      * @return 成功返回true，否则返回false
      */
-    public static boolean uploadFile(FTPConfig ftpConfig, String filename, InputStream input) {
+    public static boolean uploadFile(FtpConfig ftpConfig, String filename, InputStream input) {
         FTPClient ftp = new FTPClient();
         try {
-            if (connectFTP(ftpConfig, ftp)) return false;
+            if (connectFtp(ftpConfig, ftp)) {
+                return false;
+            }
             // 设置上传文件的类型为二进制类型
             ftp.setFileType(FTP.BINARY_FILE_TYPE);
             ftp.enterLocalPassiveMode();// 这个设置允许被动连接--访问远程ftp时需要
@@ -53,11 +55,13 @@ public class FtpUtils {
         return true;
     }
 
-    private static boolean connectFTP(FTPConfig ftpConfig, FTPClient ftp) throws IOException {
+    private static boolean connectFtp(FtpConfig ftpConfig, FTPClient ftp) throws IOException {
         int reply;
-        ftp.connect(ftpConfig.getHost(), ftpConfig.getPort());// 连接FTP服务器
+        // 连接FTP服务器
         // 如果采用默认端口，可以使用ftp.connect(host)的方式直接连接FTP服务器
-        ftp.login(ftpConfig.getUsername(), ftpConfig.getPassword());// 登录
+        ftp.connect(ftpConfig.getHost(), ftpConfig.getPort());
+        // 登录
+        ftp.login(ftpConfig.getUsername(), ftpConfig.getPassword());
         reply = ftp.getReplyCode();
         if (!FTPReply.isPositiveCompletion(reply)) {
             ftp.disconnect();
@@ -69,8 +73,9 @@ public class FtpUtils {
             String[] dirs = ftpConfig.getFilePath().split("/");
             String tempPath = ftpConfig.getBasePath();
             for (String dir : dirs) {
-                if (null == dir || "".equals(dir))
+                if (null == dir || "".equals(dir)) {
                     continue;
+                }
                 tempPath += "/" + dir;
                 if (!ftp.changeWorkingDirectory(tempPath)) {
                     if (!ftp.makeDirectory(tempPath)) {
@@ -84,11 +89,11 @@ public class FtpUtils {
         return false;
     }
 
-    public static boolean deleteFile(FTPConfig ftpConfig, String filename) {
+    public static boolean deleteFile(FtpConfig ftpConfig, String filename) {
         FTPClient ftp = new FTPClient();
         boolean result;
         try {
-            connectFTP(ftpConfig, ftp);
+            connectFtp(ftpConfig, ftp);
             result = ftp.deleteFile(filename);
         } catch (IOException e) {
             logger.error("ftp操作:" + e);
